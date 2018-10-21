@@ -2,9 +2,8 @@
 | Class: Ball
 ---------------------------------------------------------------------*/
 
-//const SPEED = 40; 
-const SPEED = 20;
-const INCREMENT = 5;
+const SPEED = 30;
+const INCREMENT = 0;
 
 class Ball extends THREE.Object3D{
 
@@ -13,52 +12,71 @@ class Ball extends THREE.Object3D{
         'use strict'
 
         super();
-        var geometry = new THREE.SphereGeometry(radius, 30, 30);
+        var geometry = new THREE.SphereGeometry(radius, 15, 15);
         var material = new THREE.MeshBasicMaterial( {color:0x42f453, wireframe:true});
         var mesh     = new THREE.Mesh(geometry, material);
-        this.add(mesh);
-        this.position.set(x, y, z);
+        
+
         this.radius = radius;
         this.speed = SPEED;
-        this.angle = angle; 
-        this.esfera = mesh;
-        self.choques=0;
+        this.rotation.y = angle;
+        this.meshSphere = mesh;
+        this.add(new THREE.AxesHelper(35));
+
+        this.add(mesh);
+        this.position.set(x, y, z);
     }
 
     getAngle(){
-        return this.angle;
+        return this.rotation.y;
     }
 
     getRadius(){
         return this.radius;
     }
 
-
+    getSpeed(){
+        return this.speed;
+    }
     moveBall(delta){
         'use strict'
 
-        var xSpeed = this.speed * Math.sin(this.angle);
-        var zSpeed = this.speed * Math.cos(this.angle);
-        this.position.x += xSpeed * delta;
-        this.position.z += zSpeed * delta; 
+        var xSpeed = this.speed * Math.sin(this.rotation.y);
+        var zSpeed = this.speed * Math.cos(this.rotation.y);
+        this.position.x += xSpeed * delta;  
+        this.position.z += zSpeed * delta;
 
+        this.meshSphere.rotateX(delta * this.speed/this.radius); 
     }
 
     increaseSpeed(){
+        'use strict';
+
         this.speed += INCREMENT; 
     }
 
 
-    processCollision(angleDiff,b2speed,b2angle,flag){
+    processCollision(angleDiff, ball){      //angleDiff,b2speed,b2angle){
+        'use strict';
 
-         
-    var newvz = b2speed*Math.cos(b2angle-angleDiff)*Math.cos(angleDiff) + this.speed*Math.sin(this.angle-angleDiff)*Math.sin(angleDiff);
-    var newvx = b2speed*Math.cos(b2angle-angleDiff)*Math.sin(angleDiff) + this.speed*Math.sin(this.angle-angleDiff)*Math.cos(angleDiff);
+        var newSpeedz = ball.getSpeed()*Math.cos(ball.getAngle()-angleDiff)*Math.cos(angleDiff)
+                    + this.speed*Math.sin(this.rotation.y-angleDiff)*Math.sin(angleDiff);
+        
+        var newSpeedx = ball.getSpeed()*Math.cos(ball.getAngle()-angleDiff)*Math.sin(angleDiff) 
+                    + this.speed*Math.sin(this.rotation.y-angleDiff)*Math.cos(angleDiff);
 
-    this.angle = Math.atan2(newvx,newvz); 
-    if(this.angle < 0) this.angle = 2*Math.PI + this.angle;
+        this.setAngleNotMesh(Math.atan2(newSpeedx,newSpeedz)); 
+        
+        if(this.angle < 0) this.rotation = 2*Math.PI + this.angle;
 
+    }
 
+    setAngleNotMesh(alpha){
+        'use strict';
+
+        var aux = this.rotation.y;
+        this.rotation.y = alpha;
+        this.meshSphere.rotateY(aux - alpha);
     }
 
 }

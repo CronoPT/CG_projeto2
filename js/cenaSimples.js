@@ -38,15 +38,15 @@ function init(){
 		1, 500);
 
 	camera = prespCamera;
-	camera.lookAt(scene.position);
+	camera.lookAt(50, 0, 100);
 
 	render();
-
+	
 	keepgoing = 1;
 	step = 0;
 	window.addEventListener("resize", onResize);
 	window.addEventListener("keydown", onKeyDown);
-	setTimeout(function(){ field.increaseSpeed(); }, 5000);
+	setInterval(function(){ field.increaseSpeed(); }, 5000);
 }
 
 /*--------------------------------------------------------------------
@@ -181,7 +181,7 @@ function onKeyDown(e){
 
 		case 51: //3
 			camera = prespCamera;
-			camera.lookAt(scene.position);
+			camera.lookAt(50, 0, 100);
 			break;
 
 		case 52: //4
