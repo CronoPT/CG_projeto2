@@ -3,7 +3,7 @@
 ---------------------------------------------------------------------*/
 
 const WALL  = 2;
-const BALLS = 10;
+const BALLS = 1;
 const NEARWIDTH = 1;
 const FARWIDTH  = 2;
 const NEARDEPTH = 3;
@@ -123,22 +123,22 @@ class Field extends THREE.Object3D{
 
             if(ball.position.x - this.height/2 < 0){
             //near width wall
-                ball.angle = -ball.angle;
+                ball.setAngleNotMesh(-ball.angle);
                 ball.position.x = this.height/2;
 
             }else if(ball.position.x + this.height/2 > this.width){
             //far width wall
-                ball.angle = -ball.angle;
+                ball.setAngleNotMesh(-ball.angle);
                 ball.position.x = this.width-this.height/2;
 
             }else if(ball.position.z - this.height/2 < 0){
             //near depth wall
-                ball.angle = Math.PI-ball.angle;
+                ball.setAngleNotMesh(Math.PI-ball.angle);
                 ball.position.z = this.height/2;
 
             }else if(ball.position.z + this.height/2 > this.depth){
             //far depth wall
-                ball.angle = Math.PI-ball.angle;
+                ball.setAngleNotMesh(Math.PI-ball.angle);
                 ball.position.z = this.depth-this.height/2;
 
             }
