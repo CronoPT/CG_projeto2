@@ -3,7 +3,9 @@
 ---------------------------------------------------------------------*/
 
 const WALL  = 2;
-const BALLS = 4;
+const BALLS = 10;
+const MIN_SPEED = 10;
+const MAX_SPEED = 100;
 
 class Field extends THREE.Object3D{
 
@@ -21,13 +23,13 @@ class Field extends THREE.Object3D{
         this.balls = [];
 
         
-        var i, ball, x, z, angle;
+        var i, ball, x, z, angle, speedValue;
         for(i = 0; i < BALLS; i++){
             x = Math.random()*(width-height/2 - height/2) + height/2;
             z = Math.random()*(depth-height/2 - height/2) + height/2;
-            console.log("z=" + z + " x=" + x);
+            speedValue = Math.random()*(MAX_SPEED - MIN_SPEED) + MIN_SPEED;
             angle = Math.random()*2*Math.PI; 
-            ball = new Ball(height/2, angle, x, height/2, z);
+            ball = new Ball(height/2, angle, speedValue, x, height/2, z);
             this.balls.push(ball);
         }
 
@@ -117,25 +119,25 @@ class Field extends THREE.Object3D{
 
             if(ball.position.x - this.height/2 < 0){
             //near width wall
-                this.speedAngle = -ball.speedAngle;
+                ball.speedAngle = -ball.speedAngle;
                 ball.position.x = this.height/2;
 
             }
             else if(ball.position.x + this.height/2 > this.width){
             //far width wall
-                this.speedAngle = -ball.speedAngle;
+                ball.speedAngle = -ball.speedAngle;
                 ball.position.x = this.width-this.height/2;
 
             }
             else if(ball.position.z - this.height/2 < 0){
             //near depth wall
-                this.speedAngle = Math.PI-ball.speedAngle;
+                ball.speedAngle = Math.PI-ball.speedAngle;
                 ball.position.z = this.height/2;
 
             }
             else if(ball.position.z + this.height/2 > this.depth){
             //far depth wall
-                this.speedAngle = Math.PI-ball.speedAngle;
+                ball.speedAngle = Math.PI-ball.speedAngle;
                 ball.position.z = this.depth-this.height/2;
             }
         

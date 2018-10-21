@@ -2,13 +2,13 @@
 | Class: Ball
 ---------------------------------------------------------------------*/
 
-const SPEED = 100;
-const INCREMENT = 0;
+const MIN_INCREMENT_SPEED = 5;
+const MAX_INCREMENT_SPEED = 20;
 
 class Ball extends THREE.Object3D{
 
 
-    constructor(radius, angle, x, y, z){
+    constructor(radius, angle, speedValue, x, y, z){
         'use strict';
 
         super();
@@ -16,13 +16,14 @@ class Ball extends THREE.Object3D{
         var material = new THREE.MeshBasicMaterial( {color:0x42f453, wireframe:true});
         this.mesh     = new THREE.Mesh(geometry, material);
         
-
+        this.axisHelper = new THREE.AxesHelper(35);
+        this.axisHelper.visible = false;
         this.radius = radius;
-        this.speedModulus = SPEED;
+        this.speedValue = speedValue;
         this.speedAngle = angle;
         
-        this.add(new THREE.AxesHelper(35));
         this.add(this.mesh);
+        this.add(this.axisHelper);
         this.position.set(x, y, z);
     }
 
@@ -68,7 +69,7 @@ class Ball extends THREE.Object3D{
     increaseSpeed(){
         'use strict';
 
-        this.speedValue += INCREMENT; 
+        this.speedValue += Math.random()*(MAX_INCREMENT_SPEED - MIN_INCREMENT_SPEED) + MIN_INCREMENT_SPEED; 
     }
 
 

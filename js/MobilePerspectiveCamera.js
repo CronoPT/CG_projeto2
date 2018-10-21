@@ -14,7 +14,6 @@ class MobilePerspectiveCamera extends THREE.PerspectiveCamera{
         this.position.z = this.ball.position.z + (Math.cos(angle)* this.ballDistance);
         
         this.lookAt(this.ball.position);
-        console.table([this.position, this.ball.position]);
     }
     
     setBall(ball){

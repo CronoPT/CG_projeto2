@@ -11,9 +11,7 @@ var field;
 
 var mobilePerspectiveCamera;
 
-/*flags para eventos keydown para debbug*/
-var keepgoing;
-var step;
+var hasAxisHelper = false;
 /*--------------------------------------------------------------------
 | Function: init
 ---------------------------------------------------------------------*/
@@ -28,25 +26,20 @@ function init(){
 
 	createScene();
 
-	createFrontCamera();
-	createLateralCamera();
 	createPrespCamera();
 	createUpCamera();
-
 	mobilePerspectiveCamera = new MobilePerspectiveCamera(
 		field.getBall(0), 40, 80, 120, window.innerWidth / window.innerHeight,
 		1, 500);
 
 	camera = prespCamera;
-	camera.lookAt(50, 0, 100);
 
 	render();
 
-	keepgoing = 1;
-	step = 0;
 	window.addEventListener("resize", onResize);
 	window.addEventListener("keydown", onKeyDown);
-	setInterval(function(){ field.increaseSpeed(); }, 5000);
+	var numSec = Math.random()*(120000-30000) + 30000;
+	setInterval(function(){ field.increaseSpeed(); }, numSec);
 }
 
 /*--------------------------------------------------------------------
@@ -57,13 +50,10 @@ function animate(){
 	'use strict';
 
 	var delta = clock.getDelta();
-	if(keepgoing===1 || step == 1){
-		field.moveBalls(delta);
-		field.processCollisions(); 
-		step = 0;
-		if(camera == mobilePerspectiveCamera){
-			camera.moveCamera();
-		}
+	field.moveBalls(delta);
+	field.processCollisions(); 
+	if(camera == mobilePerspectiveCamera){
+		camera.moveCamera();
 	}
 
 	render();
@@ -118,40 +108,13 @@ function createPrespCamera(){
 											  1,1000);
 
 	prespCamera.position.set(200, 200, 200);
-}
-
-function createFrontCamera(){
-	'use strict';
-
-	var viewHeight = 400;
-	var aspectratio = window.innerWidth / window.innerHeight;
-	frontCamera = new THREE.OrthographicCamera(-aspectratio*viewHeight/2,
-											    aspectratio*viewHeight/2,
-											    viewHeight/2,
-											   -viewHeight/2,
-											   -1000, 1000);
-	
-	frontCamera.position.set(0, 70, 400);
-}
-
-function createLateralCamera(){
-	'use strict';
-
-	var viewHeight = 700;
-	var aspectratio = window.innerWidth / window.innerHeight;
-	lateralCamera = new THREE.OrthographicCamera(-aspectratio*viewHeight/2,
-												  aspectratio*viewHeight/2,
-												  viewHeight/2,
-	   										     -viewHeight/2,
-	   										     -1000, 1000);
-
-	lateralCamera.position.set(400, 70, 0);
+	prespCamera.lookAt(field.width/2, 0, field.depth/2);
 }
 
 function createUpCamera(){
 	'use strict';
 
-	var viewHeight = 800;
+	var viewHeight = 300;
 	var aspectratio = window.innerWidth / window.innerHeight;
 	upCamera = new THREE.OrthographicCamera(aspectratio*viewHeight/2,
 										   -aspectratio*viewHeight/2,
@@ -159,7 +122,8 @@ function createUpCamera(){
 	   									    viewHeight/2,
 	   									   -1000, 1000);
 	
-	upCamera.position.set(0, 400, 0);
+	upCamera.position.set(field.width/2, 200, field.depth/2);
+	upCamera.lookAt(field.width/2, 0, field.depth/2);
 }
 
 /*--------------------------------------------------------------------
@@ -170,29 +134,18 @@ function onKeyDown(e){
 	//console.log(e.keyCode);
 	switch(e.keyCode){
 		case 49: //1
-			camera = frontCamera;
-			camera.lookAt(0, 70, 0);
+			camera = upCamera;
 			break;
 
 		case 50: //2
-			camera = lateralCamera;
-			camera.lookAt(0, 70, 0);
+			camera = prespCamera;
 			break;
 
 		case 51: //3
-			camera = prespCamera;
-			camera.lookAt(50, 0, 100);
-			break;
-
-		case 52: //4
-			camera = upCamera;
-			camera.lookAt(scene.position);
-			break;
-
-		case 53: //5
 			camera = mobilePerspectiveCamera;
 			camera.setBall(field.getBall(0));
 			break;
+	
 
 		case 65://A
 		case 97://a
@@ -203,17 +156,12 @@ function onKeyDown(e){
 			});
 			break;
 
-		/*teclas para debbug*/
-
-		case 83: //S - pára as bolas
-			keepgoing = (keepgoing + 1)% 2;
+		case 69://E
+		case 102://e
+			for( var i = 0; i < BALLS; i++){
+				field.getBall(i).axisHelper.visible = !hasAxisHelper;
+			}
+			hasAxisHelper = !hasAxisHelper;
 			break;
-
-		case 80: //P -step by step
-			keepgoing = 0;
-			step = 1;
-			break;
-
-
 	}
 }
