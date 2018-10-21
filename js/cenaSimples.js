@@ -9,6 +9,11 @@ var prespCamera;
 
 var field;
 
+var mobilePerspectiveCamera;
+
+/*flags para eventos keydown para debbug*/
+var keepgoing;
+var step;
 /*--------------------------------------------------------------------
 | Function: init
 ---------------------------------------------------------------------*/
@@ -28,11 +33,17 @@ function init(){
 	createPrespCamera();
 	createUpCamera();
 
+	mobilePerspectiveCamera = new MobilePerspectiveCamera(
+		field.getBall(0), 40, 80, 120, window.innerWidth / window.innerHeight,
+		1, 500);
+
 	camera = prespCamera;
 	camera.lookAt(scene.position);
 
 	render();
 
+	keepgoing = 1;
+	step = 0;
 	window.addEventListener("resize", onResize);
 	window.addEventListener("keydown", onKeyDown);
 	setTimeout(function(){ field.increaseSpeed(); }, 5000);
@@ -46,8 +57,14 @@ function animate(){
 	'use strict';
 
 	var delta = clock.getDelta();
-	field.moveBalls(delta);
-	field.wallColisions();
+	if(keepgoing===1 || step == 1){
+		field.moveBalls(delta);
+		field.processCollisions(); 
+		step = 0;
+		if(camera == mobilePerspectiveCamera){
+			camera.moveCamera();
+		}
+	}
 
 	render();
 	requestAnimationFrame(animate);
@@ -150,7 +167,7 @@ function createUpCamera(){
 ---------------------------------------------------------------------*/
 function onKeyDown(e){
 	'use strict';
-
+	//console.log(e.keyCode);
 	switch(e.keyCode){
 		case 49: //1
 			camera = frontCamera;
@@ -172,6 +189,11 @@ function onKeyDown(e){
 			camera.lookAt(scene.position);
 			break;
 
+		case 53: //5
+			camera = mobilePerspectiveCamera;
+			camera.setBall(field.getBall(0));
+			break;
+
 		case 65://A
 		case 97://a
 			scene.traverse(function(node){
@@ -180,5 +202,18 @@ function onKeyDown(e){
 				}
 			});
 			break;
+
+		/*teclas para debbug*/
+
+		case 83: //S - pára as bolas
+			keepgoing = (keepgoing + 1)% 2;
+			break;
+
+		case 80: //P -step by step
+			keepgoing = 0;
+			step = 1;
+			break;
+
+
 	}
 }
