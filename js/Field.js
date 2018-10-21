@@ -3,11 +3,7 @@
 ---------------------------------------------------------------------*/
 
 const WALL  = 2;
-const BALLS = 1;
-const NEARWIDTH = 1;
-const FARWIDTH  = 2;
-const NEARDEPTH = 3;
-const FARDEPTH  = 4;
+const BALLS = 4;
 
 class Field extends THREE.Object3D{
 
@@ -26,7 +22,7 @@ class Field extends THREE.Object3D{
 
         
         var i, ball, x, z, angle;
-        for(i=0; i<BALLS; i++){
+        for(i = 0; i < BALLS; i++){
             x = Math.random()*(width-height/2 - height/2) + height/2;
             z = Math.random()*(depth-height/2 - height/2) + height/2;
             console.log("z=" + z + " x=" + x);
@@ -42,7 +38,7 @@ class Field extends THREE.Object3D{
    
 
 
-        this.balls[0].esfera.material.color.setHex(0xff0000);
+        this.balls[0].mesh.material.color.setHex(0xff0000);
 
 
     }
@@ -86,10 +82,8 @@ class Field extends THREE.Object3D{
 
         scene.add(this);
 
-        var i;
-        for(i=0; i<BALLS; i++){
+        for(var i=0; i<BALLS; i++)
             scene.add(this.balls[i]);
-        }
     }
 
     moveBalls(delta){
@@ -116,37 +110,35 @@ class Field extends THREE.Object3D{
     wallColisions(){
         'use strict';
 
-        var i, ball;      	
+        var ball;      	
 
-        for(i = 0; i<BALLS; i++){
+        for(var i = 0; i < BALLS; i++){
             ball = this.balls[i];
 
             if(ball.position.x - this.height/2 < 0){
             //near width wall
-                ball.setAngleNotMesh(-ball.angle);
+                this.speedAngle = -ball.speedAngle;
                 ball.position.x = this.height/2;
 
-            }else if(ball.position.x + this.height/2 > this.width){
+            }
+            else if(ball.position.x + this.height/2 > this.width){
             //far width wall
-                ball.setAngleNotMesh(-ball.angle);
+                this.speedAngle = -ball.speedAngle;
                 ball.position.x = this.width-this.height/2;
 
-            }else if(ball.position.z - this.height/2 < 0){
+            }
+            else if(ball.position.z - this.height/2 < 0){
             //near depth wall
-                ball.setAngleNotMesh(Math.PI-ball.angle);
+                this.speedAngle = Math.PI-ball.speedAngle;
                 ball.position.z = this.height/2;
 
-            }else if(ball.position.z + this.height/2 > this.depth){
-            //far depth wall
-                ball.setAngleNotMesh(Math.PI-ball.angle);
-                ball.position.z = this.depth-this.height/2;
-
             }
-
-            if(ball.angle > Math.PI*2) ball.angle = 2*Math.PI - ball.angle;
-            else if(ball.angle < 0) ball.angle = 2*Math.PI + ball.angle;
-
-         
+            else if(ball.position.z + this.height/2 > this.depth){
+            //far depth wall
+                this.speedAngle = Math.PI-ball.speedAngle;
+                ball.position.z = this.depth-this.height/2;
+            }
+        
         }
     
 
@@ -155,13 +147,12 @@ class Field extends THREE.Object3D{
 
 	allBallColisions(){
 		
-		var i,o;
-		for(i=0; i<BALLS; i++){
-			for(o=i+1;o<BALLS;o++){
-				this.ballCollision(this.balls[i],this.balls[o]);
+		var i,j;
+		for(i = 0; i < BALLS; i++){
+			for(j = i+1; j < BALLS; j++){
+				this.ballCollision(this.balls[i],this.balls[j]);
 			}
 		}
-
 	}
 
 
@@ -170,49 +161,45 @@ class Field extends THREE.Object3D{
       'use strict';     
 
 
-      var vecChoqueX = (ball2.position.x - ball1.position.x);
-      var vecChoqueZ = (ball2.position.z - ball1.position.z);
-      var dist = Math.sqrt(vecChoqueX*vecChoqueX + vecChoqueZ*vecChoqueZ);
-      
-
-      var centerVectorX = vecChoqueX/2;
-      var centerVectorZ= vecChoqueZ/2;
-
-      var radiusNormVecX =  ball1.radius*vecChoqueX/dist;
-      var radiusNormVecZ = ball1.radius*vecChoqueZ/dist;
-
-      var offsetx = radiusNormVecX - centerVectorX;
-      var offsetz = radiusNormVecZ - centerVectorZ;
-
-    
-      if(dist > (ball2.radius + ball1.radius) )return;
-    
-      var angleDiff = Math.atan2(vecChoqueX,vecChoqueZ);
-
-  
-      if(angleDiff < 0) angleDiff = 2*Math.PI + angleDiff;
+        var vecChoqueX = (ball2.position.x - ball1.position.x);
+        var vecChoqueZ = (ball2.position.z - ball1.position.z);
+        var dist = Math.sqrt(vecChoqueX*vecChoqueX + vecChoqueZ*vecChoqueZ);
 
 
-      //nao substituir as igualdades nas funçoes ĺá em baixo (deixar isto aqui!)
-       var b2speed = ball2.speed; 
-       var b2angle = ball2.angle;
-       var b1speed = ball1.speed;
-       var b1angle = ball1.angle;
+        var centerVectorX = vecChoqueX/2;
+        var centerVectorZ= vecChoqueZ/2;
 
-       ball1.processCollision(angleDiff,b2speed,b2angle,n);
-       ball2.processCollision(angleDiff,b1speed,b1angle,n);
+        var radiusNormVecX =  ball1.radius*vecChoqueX/dist;
+        var radiusNormVecZ = ball1.radius*vecChoqueZ/dist;
 
-       ball1.position.x = ball1.position.x - offsetx;
-       ball1.position.z = ball1.position.z - offsetz;
-
-       ball2.position.x = ball2.position.x + offsetx;
-       ball2.position.z = ball2.position.z + offsetz;
+        var offsetx = radiusNormVecX - centerVectorX;
+        var offsetz = radiusNormVecZ - centerVectorZ;
 
 
-      vecChoqueX = (ball2.position.x - ball1.position.x);
-      vecChoqueZ = (ball2.position.z - ball1.position.z);
-       dist = Math.sqrt(vecChoqueX*vecChoqueX + vecChoqueZ*vecChoqueZ);
+        if(dist > (ball2.radius + ball1.radius) )
+            return;
 
+        // angle between Z axis and vector( ball_1 -> ball_2).
+        var angleDiff = Math.atan2(vecChoqueX,vecChoqueZ);
+
+        if(angleDiff < 0) 
+            angleDiff = 2*Math.PI + angleDiff;
+
+
+        //nao substituir as igualdades nas funçoes ĺá em baixo (deixar isto aqui!)
+        var b2SpeedValue = ball2.speedValue; 
+        var b2SpeedAngle = ball2.speedAngle;
+        var b1SpeedValue = ball1.speedValue;
+        var b1SpeedAngle = ball1.speedAngle;
+
+        ball1.processCollision(angleDiff,b2SpeedValue,b2SpeedAngle);
+        ball2.processCollision(angleDiff,b1SpeedValue,b1SpeedAngle);
+
+        ball1.position.x = ball1.position.x - offsetx;
+        ball1.position.z = ball1.position.z - offsetz;
+
+        ball2.position.x = ball2.position.x + offsetx;
+        ball2.position.z = ball2.position.z + offsetz;
     }
 
 
@@ -220,14 +207,10 @@ class Field extends THREE.Object3D{
     increaseSpeed(){
         'use strict';
 
-        var i;
-        for(i=0; i<BALLS; i++){
+        for(var i = 0; i < BALLS; i++){
             this.balls[i].increaseSpeed();
         }
     }
-
-
-
 
 }
 
