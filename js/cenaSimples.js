@@ -2,8 +2,6 @@
 
 var camera, scene, renderer, clock;
 
-var lateralCamera;
-var frontCamera;
 var upCamera;
 var prespCamera;
 
@@ -12,6 +10,7 @@ var field;
 var mobilePerspectiveCamera;
 
 var hasAxisHelper = false;
+
 /*--------------------------------------------------------------------
 | Function: init
 ---------------------------------------------------------------------*/
@@ -87,16 +86,45 @@ function createScene(){
 | sure the scene has the same aspect ratio as the window
 ---------------------------------------------------------------------*/
 function onResize(){
-	'use strict'
+	'use strict';
 
 	renderer.setSize(window.innerWidth, window.innerHeight);
+
+	updatePerspectiveCamera(prespCamera);
+	updatePerspectiveCamera(mobilePerspectiveCamera);
+	updateOrthographicCamera(upCamera);
+}
+
+/*--------------------------------------------------------------------
+| Function: updatePerspectiveCamera
+---------------------------------------------------------------------*/
+function updatePerspectiveCamera(camera){
+	'use strict';
 
 	if(window.innerHeight>0 && window.innerWidth>0){
 		camera.aspect = renderer.getSize().width / renderer.getSize().height;
 		camera.updateProjectionMatrix();
 	}
+}	
 
-}
+/*--------------------------------------------------------------------
+| Function: updateOrthographicCamera
+---------------------------------------------------------------------*/
+function updateOrthographicCamera(camera){
+	'use strict';
+
+	var viewHeight = 300;
+	var aspect = window.innerWidth / window.innerHeight;
+
+	if(window.innerHeight>0 && window.innerWidth>0){
+		camera.left   =  aspect*viewHeight/2;
+		camera.right  = -aspect*viewHeight/2;
+		camera.top    = -viewHeight/2;
+		camera.bottom =  viewHeight/2;
+
+		camera.updateProjectionMatrix();
+	}
+}	
 
 /*--------------------------------------------------------------------
 | CAMERAS
@@ -114,8 +142,9 @@ function createPrespCamera(){
 function createUpCamera(){
 	'use strict';
 
-	var viewHeight = 300;
+	var viewHeight  = 300;
 	var aspectratio = window.innerWidth / window.innerHeight;
+
 	upCamera = new THREE.OrthographicCamera(aspectratio*viewHeight/2,
 										   -aspectratio*viewHeight/2,
 										   -viewHeight/2,
@@ -131,7 +160,7 @@ function createUpCamera(){
 ---------------------------------------------------------------------*/
 function onKeyDown(e){
 	'use strict';
-	//console.log(e.keyCode);
+
 	switch(e.keyCode){
 		case 49: //1
 			camera = upCamera;
